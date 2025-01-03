@@ -17,7 +17,7 @@
       main {
       }
 
-      h2, h3, video, .buttons, select, audio {
+      h2, h3, video, .buttons, select, audio, .warning {
         width: 80vw;
         min-width: 300px;
         display: flex;
@@ -36,7 +36,7 @@
         justify-content: center;
       }
 
-      summary {
+      .copyh2 {
         width: 80vw;
         font-size: 20px;
         min-width: 300px;
@@ -69,6 +69,11 @@
         font-size: 20px;
       }
 
+      .warning {
+        color: #F00;
+        padding-top: 10px;
+      }
+
       /*main::after {
         background-color: #0F0;
         content: "";
@@ -92,10 +97,15 @@
         <select id="videoSelect"></select>
         <h3>Microphone</h3>
         <select id="audioSelect"></select>
+        <div class="warning" id="warningMessage"><p>&#x26A0; Select "Start" to gain permissions (may require refresh)</p></div> 
       </details>
       <!--<audio id="audio" controls autoplay></audio>-->
     </main>
     <script>
+        const warning = document.getElementById('warningMessage');
+        if (getCookie('hasPlayed') === 'true') {
+            warning.style.display = 'none';
+        }
         const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
         const video = document.getElementById('video');
@@ -137,6 +147,15 @@
 
             audioSelect.innerHTML = audioDevices.map(device => `<option value="${device.deviceId}">${device.label}</option>`).join('');
             videoSelect.innerHTML = videoDevices.map(device => `<option value="${device.deviceId}">${device.label}</option>`).join('');
+            
+            let newOption0 = document.createElement("option");
+            newOption0.value = "null";
+            newOption0.text = "(None selected)";
+            let newOption1 = document.createElement("option");
+            newOption1.value = "null";
+            newOption1.text = "(None selected)";
+            videoSelect.insertBefore(newOption0, videoSelect.firstChild);
+            audioSelect.insertBefore(newOption1, audioSelect.firstChild);
 
             const savedAudioSource = getCookie('audioSource');
             const savedVideoSource = getCookie('videoSource');
@@ -151,11 +170,11 @@
         }
 
         audioSelect.addEventListener('change', () => {
-            setCookie('audioSource', audioSelect.value, 7);
+            setCookie('audioSource', audioSelect.value, 36500);
         });
 
         videoSelect.addEventListener('change', () => {
-            setCookie('videoSource', videoSelect.value, 7);
+            setCookie('videoSource', videoSelect.value, 36500);
         });
 
 
@@ -168,6 +187,7 @@
             });
             video.srcObject = mediaStream;
             //audio.srcObject = mediaStream;
+            setCookie('hasPlayed', "true", 1);
         });
 
         stopButton.addEventListener('click', () => {
